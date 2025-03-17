@@ -114,6 +114,47 @@ def get_item(item_id):
     return jsonify({'id': item.id, 'name': item.name, 'description': item.description}), 200
 
 @app.route('/items/<int:item_id>', methods=['PUT'])
+@swag_from({
+    'tags': ['Items'],
+    'parameters': [
+        {
+            'name': 'item_id',
+            'in': 'path',
+            'type': 'integer',
+            'required': True,
+            'description': 'ID of the item to update'
+        },
+        {
+            'name': 'body',
+            'in': 'body',
+            'required': True,
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'name': {'type': 'string', 'example': 'Updated Item Name'},
+                    'description': {'type': 'string', 'example': 'Updated description of the item'}
+                },
+                'required': []
+            },
+            'description': 'JSON object with updated item details'
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'Item updated successfully',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'name': {'type': 'string'},
+                    'description': {'type': 'string'}
+                }
+            }
+        },
+        400: {'description': 'No input data provided'},
+        404: {'description': 'Item not found'}
+    }
+})
 def update_item(item_id):
     data = request.get_json()
     item = Item.query.get(item_id)
@@ -125,6 +166,7 @@ def update_item(item_id):
     item.description = data.get('description', item.description)
     db.session.commit()
     return jsonify({'id': item.id, 'name': item.name, 'description': item.description}), 200
+
 
 @app.route('/items/<int:item_id>', methods=['DELETE'])
 @swag_from({
